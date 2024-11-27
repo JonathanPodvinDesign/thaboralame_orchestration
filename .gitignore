@@ -1,0 +1,5 @@
+.env
+/thaboralame_front
+/thaboralame_back
+/thaboralame_auth
+.DS_Store
