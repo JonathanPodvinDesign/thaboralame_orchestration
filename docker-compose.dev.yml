@@ -5,7 +5,7 @@ services:
       context: ./thaboralame_front
       dockerfile: Dockerfile.dev
     ports:
-      - 3000:3000
+      - 3002:3002
     volumes:
       - ./thaboralame_front:/app
     env_file:
