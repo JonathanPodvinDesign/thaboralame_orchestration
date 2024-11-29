@@ -1,5 +1,5 @@
 services:
-  thaboralame_front:
+  frontend:
     container_name: thaboralame_front
     build:
       context: ./thaboralame_front
@@ -8,43 +8,39 @@ services:
       - 3000:3000
     volumes:
       - ./thaboralame_front:/app
-      - /app/node_modules
+    env_file:
+      - .env 
 
-  backend:
-    container_name: thaboralame_back
+  auth:
+    container_name: thaboralame_auth
     build:
-      context: ./thaboralame_back
+      context: ./thaboralame_auth
       dockerfile: Dockerfile.dev
-    volumes:
-      - ./thaboralame_back:/var/www/html
     ports:
-      - "8082:8080"
+      - 8081:8081
+    volumes:
+      - ./thaboralame_auth:/app
+      - target:/app/target
     environment:
-      DB_CONNECTION: ${DB_CONNECTION}
-      DB_HOST: mysql
-      DB_PORT: ${DB_PORT}
-      DB_DATABASE: ${DB_DATABASE}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      APP_NAME: ${APP_NAME}
-      APP_ENV: ${APP_ENV}
-      APP_KEY: ${APP_KEY}
-      APP_DEBUG: ${APP_DEBUG}
-      APP_URL: ${APP_URL}
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:mysql://auth_db:3306/${MYSQL_AUTH_DATABASE}
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD}
     depends_on:
-      - mysql
+      - auth_db
 
-  mysql:
-    container_name: thaboralame_db
+  auth_db:
+    container_name: thaboralame_auth_db
     image: mysql:latest
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_DATABASE: ${MYSQL_AUTH_DATABASE}
     ports:
       - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
-      - ./mysql/init:/docker-entrypoint-initdb.d
+      - thaboralame_auth_db:/var/lib/mysql
 
 volumes:
-  mysql_data:
+  thaboralame_front:
+  thaboralame_auth_db:
+  target:

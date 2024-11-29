@@ -1,0 +1,2 @@
+CREATE DATABASE IF NOT EXISTS thaboralame_auth;
+CREATE DATABASE IF NOT EXISTS thaboralame_db;
