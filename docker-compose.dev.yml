@@ -19,8 +19,8 @@ services:
     ports:
       - 8081:8081
     volumes:
-      - ./thaboralame_auth:/app
-      - target:/app/target
+      - ./thaboralame_auth/src:/app/src
+      - ./thaboralame_auth/pom.xml:/app/pom.xml
     environment:
       - SPRING_PROFILES_ACTIVE=dev
       - SPRING_DATASOURCE_URL=jdbc:mysql://auth_db:3306/${MYSQL_AUTH_DATABASE}
@@ -40,7 +40,18 @@ services:
     volumes:
       - thaboralame_auth_db:/var/lib/mysql
 
+  gateway:
+    container_name: thaboralame_gateway
+    build:
+      context: ./thaboralame_gateway
+      dockerfile: Dockerfile.dev
+    ports:
+      - 8082:8082
+    volumes:
+      - ./thaboralame_gateway:/app
+    env_file:
+      - .env
+
 volumes:
   thaboralame_front:
   thaboralame_auth_db:
-  target:
