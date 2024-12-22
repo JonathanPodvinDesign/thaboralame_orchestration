@@ -143,6 +143,38 @@
       - .env
 
   #######################
+  # Cart
+  #######################
+
+  cart:
+    container_name: thaboralame_cart
+    build:
+      context: ./thaboralame_cart
+      dockerfile: Dockerfile.dev
+    ports:
+      - 8084:8084
+    volumes:
+      - ./thaboralame_cart:/app
+    env_file:
+      - .env
+
+  #######################
+  # Product
+  #######################
+
+  product:
+    container_name: thaboralame_product
+    build:
+      context: ./thaboralame_product
+      dockerfile: Dockerfile.dev
+    ports:
+      - 8085:8085
+    volumes:
+      - ./thaboralame_product:/app
+    env_file:
+      - .env
+
+  #######################
   # Networks
   #######################
 
