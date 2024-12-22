@@ -1,0 +1,240 @@
+<context>
+  Tu es une IA dans un projet qui utilise :
+
+  - React JS
+  - ExpressJs
+  - Typescript
+  - Docker
+  - Micro-services
+  - Prisma
+
+</context>
+
+<architecture-project>
+
+  thaboralame_orchestration/
+  │
+  ├── docker-compose.dev.yml
+  │
+  ├── thaboralame_auth/
+  │   ├── Dockerfile.dev
+  │   └── ... (autres fichiers)
+  │
+  ├── thaboralame_user/
+  │   ├── Dockerfile.dev
+  │   └── ... (autres fichiers)
+  │
+  ├── thaboralame_cart/
+  │   ├── Dockerfile.dev
+  │   └── ... (autres fichiers)
+  │
+  ├── thaboralame_product/
+  │   ├── Dockerfile.dev
+  │   └── ... (autres fichiers)
+  │
+  ├── thaboralame_gateway/
+  │   ├── Dockerfile.dev
+  │   └── ... (autres fichiers)
+  │
+  └── thaboralame_frontend/
+      ├── Dockerfile.dev
+      └── ... (autres fichiers)
+
+</architecture-project>
+
+<docker-compose-dev-thaboralame-mysql>
+  Thaboralame MySQL est un micro-service qui est indépendant, il est lancé avec un docker-compose avant le lancement du docker-compose.dev.yml du projet.
+  Pour gérer les différents docker-compose, il y a un network commun qui est créé avec le nom "thaboralame_network".
+
+  ```
+  services:
+    mysql:
+      image: mysql:8.0
+      container_name: thaboralame_mysql
+      ports:
+        - "3308:3306"
+      env_file:
+        - .env
+      volumes:
+        - mysql_data:/var/lib/mysql
+        - ./init-scripts:/docker-entrypoint-initdb.d
+
+  volumes:
+    mysql_data:
+
+  networks:
+    default:
+      external: true
+      name: thaboralame_mysql_network
+  ```
+
+</docker-compose-dev-thaboralame-mysql>
+
+<docker-compose-dev-thaboralame-orchestration>
+
+  ```
+  services:
+
+  #######################
+  # Frontend
+  #######################
+
+  frontend:
+    container_name: thaboralame_front
+    build:
+      context: ./thaboralame_front
+      dockerfile: Dockerfile.dev
+    ports:
+      - 3002:3002
+    volumes:
+      - ./thaboralame_front:/app
+    env_file:
+      - .env 
+
+  #######################
+  # Gateway
+  #######################
+
+  gateway:
+    container_name: thaboralame_gateway
+    build:
+      context: ./thaboralame_gateway
+      dockerfile: Dockerfile.dev
+    ports:
+      - 8081:8081
+    volumes:
+      - ./thaboralame_gateway:/app
+    env_file:
+      - .env
+    depends_on:
+      - user
+      - auth
+
+  #######################
+  # Auth
+  #######################
+
+  auth:
+    container_name: thaboralame_auth
+    build:
+      context: ./thaboralame_auth
+      dockerfile: Dockerfile.dev
+    ports:
+      - 8082:8082
+    volumes:
+      - ./thaboralame_auth:/app
+    env_file:
+      - .env
+
+  #######################
+  # User
+  #######################
+
+  user:
+    container_name: thaboralame_user
+    build:
+      context: ./thaboralame_user
+      dockerfile: Dockerfile.dev
+    ports:
+      - 8083:8083
+    volumes:
+      - ./thaboralame_user:/app
+    env_file:
+      - .env
+
+  #######################
+  # Networks
+  #######################
+
+  networks:
+    default:
+      external: true
+      name: thaboralame_mysql_network
+  ```
+
+</docker-compose-dev-thaboralame-orchestration>
+
+<dockerfile-dev-thaboralame-front>
+
+  ```
+  FROM node:22.11
+
+  WORKDIR /app
+
+  COPY package.json .
+
+  RUN npm install
+
+  COPY . .
+
+  EXPOSE 3002
+
+  CMD ["npm", "run", "start"]
+
+  ```
+
+</dockerfile-dev-thaboralame-front>
+
+<dockerfile-dev-thaboralame-gateway>
+
+  ```
+  FROM node:22.11
+
+  WORKDIR /app
+
+  COPY package*.json ./
+
+  RUN npm install
+
+  COPY . .
+
+  EXPOSE 8081
+
+  CMD ["npx", "nodemon", "--exec", "npx", "ts-node", "src/app.ts"]
+
+  ```
+
+</dockerfile-dev-thaboralame-gateway>
+
+
+<dockerfile-dev-thaboralame-auth>
+
+  ```
+  FROM node:22.11
+
+  WORKDIR /app
+
+  COPY package*.json ./
+
+  RUN npm install
+
+  COPY . .
+
+  EXPOSE 8082
+
+  CMD ["npx", "nodemon", "--exec", "npx", "ts-node", "src/app.ts"]
+
+  ```
+
+</dockerfile-dev-thaboralame-auth>
+
+<dockerfile-dev-thaboralame-user>
+
+  ```
+  FROM node:22.11
+
+  WORKDIR /app
+
+  COPY package*.json ./
+
+  RUN npm install
+
+  COPY . .
+
+  EXPOSE 8083
+
+  CMD ["npx", "nodemon", "--exec", "npx", "ts-node", "src/app.ts"]
+
+  ```
+
+</dockerfile-dev-thaboralame-user>

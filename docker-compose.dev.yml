@@ -1,4 +1,9 @@
 services:
+
+  #######################
+  # Frontend
+  #######################
+
   frontend:
     container_name: thaboralame_front
     build:
@@ -11,34 +16,9 @@ services:
     env_file:
       - .env 
 
-  auth:
-    container_name: thaboralame_auth
-    build:
-      context: ./thaboralame_auth
-      dockerfile: Dockerfile.dev
-    ports:
-      - 8081:8081
-    volumes:
-      - ./thaboralame_auth/src:/app/src
-      - ./thaboralame_auth/pom.xml:/app/pom.xml
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_DATASOURCE_URL=jdbc:mysql://auth_db:3306/${MYSQL_AUTH_DATABASE}
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD}
-    depends_on:
-      - auth_db
-
-  auth_db:
-    container_name: thaboralame_auth_db
-    image: mysql:latest
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_AUTH_DATABASE}
-    ports:
-      - "3306:3306"
-    volumes:
-      - thaboralame_auth_db:/var/lib/mysql
+  #######################
+  # Gateway
+  #######################
 
   gateway:
     container_name: thaboralame_gateway
@@ -46,12 +26,52 @@ services:
       context: ./thaboralame_gateway
       dockerfile: Dockerfile.dev
     ports:
-      - 8082:8082
+      - 8081:8081
     volumes:
       - ./thaboralame_gateway:/app
     env_file:
       - .env
+    depends_on:
+      - user
+      - auth
 
-volumes:
-  thaboralame_front:
-  thaboralame_auth_db:
+  #######################
+  # Auth
+  #######################
+
+  auth:
+    container_name: thaboralame_auth
+    build:
+      context: ./thaboralame_auth
+      dockerfile: Dockerfile.dev
+    ports:
+      - 8082:8082
+    volumes:
+      - ./thaboralame_auth:/app
+    env_file:
+      - .env
+
+  #######################
+  # User
+  #######################
+
+  user:
+    container_name: thaboralame_user
+    build:
+      context: ./thaboralame_user
+      dockerfile: Dockerfile.dev
+    ports:
+      - 8083:8083
+    volumes:
+      - ./thaboralame_user:/app
+    env_file:
+      - .env
+
+  #######################
+  # Networks
+  #######################
+
+networks:
+  default:
+    external: true
+    name: thaboralame_mysql_network

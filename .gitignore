@@ -1,5 +1,7 @@
 .env
 /thaboralame_front
-/thaboralame_back
+/thaboralame_gateway
 /thaboralame_auth
+/thaboralame_user
 .DS_Store
+/node_modules

@@ -1,0 +1,6 @@
+/thaboralame_auth
+/thaboralame_front
+/thaboralame_gateway
+/thaboralame_user
+.env
+/init-scripts
